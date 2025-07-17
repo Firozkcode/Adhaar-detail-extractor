@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Aadhaar OCR Tool</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    input, textarea, select, button {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0 15px;
+      font-size: 16px;
+    }
+    textarea {
+      height: 100px;
+      resize: vertical;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 30px;
+    }
+    h2, h3 {
+      text-align: center;
+    }
+    .result {
+      border-top: 1px solid #ccc;
+      margin-top: 30px;
+      padding-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Aadhaar Card Text Extractor</h2>
+
+    <form action="/extract" method="POST" enctype="multipart/form-data">
+
+      <label>Upload Aadhaar Image:</label>
+      <input type="file" name="image" accept="image/*" required>
+
+      <label>Select Side:</label>
+      <select name="side" required onchange="this.form.submit()">
+        <option value="">-- Select Side --</option>
+        <option value="front" {% if side == 'front' %}selected{% endif %}>Front Side</option>
+        <option value="back" {% if side == 'back' %}selected{% endif %}>Back Side</option>
+      </select>
+
+      <button type="submit">Extract</button>
+    </form>
+
+    {% if data %}
+      <div class="result">
+        <h3>Edit & Confirm Extracted Details:</h3>
+        <form action="/save" method="POST">
+          {% if side == 'front' %}
+            <label>👤 Name:</label>
+            <input type="text" name="name" value="{{ data.name | default('') }}">
+
+            <label>📅 Date of Birth:</label>
+            <input type="text" name="dob" value="{{ data.dob | default('') }}">
+
+            <label>⚧ Gender:</label>
+            <input type="text" name="gender" value="{{ data.gender | default('') }}">
+
+            <label>🆔 Aadhaar Number:</label>
+            <input type="text" name="aadhaar" value="{{ data.aadhaar | default('') }}">
+
+          {% elif side == 'back' %}
+            <label>👨‍👧 Father's Name:</label>
+            <input type="text" name="father_name" value="{{ data.father_name | default('') }}">
+
+            <label>🏠 Full Address:</label>
+            <textarea name="address">{{ data.address | default('') }}</textarea>
+
+            <label>🆔 Aadhaar Number:</label>
+            <input type="text" name="aadhaar" value="{{ data.aadhaar | default('') }}">
+          {% endif %}
+
+          <button type="submit">Save Details</button>
+        </form>
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>
